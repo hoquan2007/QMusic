@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Headphones, Pause, Play, Users } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { FavoriteButton } from "@/components/music/favorite-button";
+import { PreviewBadge } from "@/components/music/preview-badge";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { formatCount } from "@/lib/format";
@@ -40,6 +41,7 @@ export function HomeHero({ track, queue }: { track: MusicTrack; queue: MusicTrac
               Nổi bật tuần này
             </Badge>
             <Badge variant="outline">{providerLabel(track.provider)}</Badge>
+            {track.isPreview && <PreviewBadge seconds={track.previewSeconds} />}
             {track.genre && <Badge>{track.genre}</Badge>}
           </div>
 
@@ -79,7 +81,7 @@ export function HomeHero({ track, queue }: { track: MusicTrack; queue: MusicTrac
               ) : (
                 <Play className="h-4 w-4 fill-current" />
               )}
-              {isCurrent && isPlaying ? "Tạm dừng" : "Phát ngay"}
+              {isCurrent && isPlaying ? "Tạm dừng" : track.isPreview ? "Nghe thử" : "Phát ngay"}
             </button>
             <Link
               href={`/track/${track.provider}/${encodeURIComponent(track.remoteId)}`}

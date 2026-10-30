@@ -34,7 +34,9 @@ export function intParam(
   min: number,
   max: number,
 ) {
-  const parsed = Number(searchParams.get(key));
+  const raw = searchParams.get(key);
+  if (raw === null || raw.trim() === "") return fallback;
+  const parsed = Number(raw);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, Math.floor(parsed)));
 }

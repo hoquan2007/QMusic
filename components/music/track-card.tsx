@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
+import { PreviewBadge } from "@/components/music/preview-badge";
 import { TrackActions } from "@/components/music/track-actions";
 import { FavoriteButton } from "@/components/music/favorite-button";
 import { usePlayerStore } from "@/stores/player-store";
@@ -57,6 +58,12 @@ export function TrackCard({
             <TrackActions track={track} />
           </div>
         </div>
+        {track.isPreview && (
+          <PreviewBadge
+            seconds={track.previewSeconds}
+            className="absolute left-3 top-3 shadow-sm"
+          />
+        )}
         <button
           type="button"
           onClick={() => playTrack(track, queue)}

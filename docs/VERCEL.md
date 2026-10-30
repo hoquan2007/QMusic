@@ -37,6 +37,7 @@ Chỉ các biến sau là cần thiết khi muốn bật thêm tính năng. Tấ
 | `AUDIUS_API_KEY` | Production / Preview | Khóa đọc Audius, chỉ dùng phía server. Có thể để trống. |
 | `AUDIUS_APP_NAME` | Tất cả | Mặc định `QMusic`. |
 | `JAMENDO_CLIENT_ID` | Production / Preview | Chỉ thêm khi đã đăng ký Jamendo. Thêm biến này sẽ bật provider Jamendo. |
+| `ITUNES_VN_ENABLED` | Production / Preview | Bật mặc định (`true`). Đặt `false` để tắt iTunes Việt Nam và đoạn nghe thử 30 giây. |
 | `LRCLIB_APP_ID` | Production / Preview | Tùy chọn, giúp tăng hạn mức LRCLIB. |
 
 Lưu ý:
@@ -51,21 +52,24 @@ Sau khi deploy, kiểm tra nhanh:
 
 ```text
 GET /                       → trang chủ tải dữ liệu Audius
-GET /api/music/home         → JSON 200, có trending
-GET /api/music/search?q=lofi→ JSON 200
+GET /vietnamese             → bảng xếp hạng nhạc Việt từ iTunes
+GET /api/music/home         → JSON 200, có trending và vietnamese
+GET /api/music/vietnamese   → JSON 200, có tracks và albums
+GET /api/music/search?q=son%20tung
+                            → JSON 200, có kết quả iTunes
 GET /api/lyrics?track=Blinding%20Lights&artist=The%20Weeknd&duration=202
                             → found=true, synced=true
 ```
 
-Nếu Audius hoặc LRCLIB tạm thời trả `429` / `503`, giao diện sẽ hiển thị lỗi và nút thử lại. Đây là lỗi từ nguồn upstream, không phải lỗi build.
+Nếu Audius, iTunes hoặc LRCLIB tạm thời trả `429` / `503`, giao diện sẽ hiển thị lỗi và nút thử lại. Đây là lỗi từ nguồn upstream, không phải lỗi build.
 
 ## 5. Giới hạn cần biết trên Vercel
 
 - **Không có database**: thư viện cá nhân lưu trong `localStorage`; không đồng bộ giữa thiết bị.
-- **Không lưu tệp nhạc**: QMusic phát trực tiếp từ Audius/Jamendo, không proxy hoặc host lại audio.
+- **Không lưu tệp nhạc**: QMusic phát trực tiếp từ Audius/Jamendo, không proxy hoặc host lại audio. Với iTunes, ứng dụng chỉ phát đoạn nghe thử 30 giây do Apple cung cấp và không tải xuống, lưu trữ hay đồng bộ.
 - **Serverless timeout**: các route gọi API ngoài có timeout và retry giới hạn. Trên gói Hobby, thời gian chạy function ngắn hơn gói trả phí; nếu upstream chậm kéo dài, route có thể bị cắt.
-- **Rate limit**: QMusic không vượt giới hạn upstream. Nếu lượng truy cập tăng, nên thêm `AUDIUS_API_KEY` và `JAMENDO_CLIENT_ID` / `LRCLIB_APP_ID` để có hạn mức tốt hơn.
-- **CSP**: `next.config.ts` chỉ cho phép kết nối tới Audius, Jamendo và LRCLIB. Nếu thêm provider mới, cập nhật `connect-src` và `media-src` tương ứng.
+- **Rate limit**: QMusic không vượt giới hạn upstream. iTunes Search API giới hạn khoảng 20 request/phút cho mỗi IP; provider cache 60–300 giây. Nếu lượng truy cập tăng, nên thêm `AUDIUS_API_KEY`, `JAMENDO_CLIENT_ID` và `LRCLIB_APP_ID` để có hạn mức tốt hơn.
+- **CSP**: `next.config.ts` chỉ cho phép kết nối tới Audius, iTunes, Jamendo và LRCLIB. Nếu thêm provider mới, cập nhật `connect-src` và `media-src` tương ứng.
 
 ## 6. Custom domain
 

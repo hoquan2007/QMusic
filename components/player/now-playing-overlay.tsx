@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { FavoriteButton } from "@/components/music/favorite-button";
+import { PreviewBadge, PreviewNote } from "@/components/music/preview-badge";
 import { LyricsView } from "@/components/player/lyrics-view";
 import { ProgressSlider } from "@/components/player/progress-slider";
 import { PlayerTransport } from "@/components/player/player-transport";
@@ -115,6 +116,7 @@ export function NowPlayingOverlay() {
                         {track.artist.name}
                       </Link>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {track.isPreview && <PreviewBadge seconds={track.previewSeconds} />}
                         {track.genre && <Badge variant="accent">{track.genre}</Badge>}
                         {track.license && <Badge variant="outline">{track.license.name}</Badge>}
                         {track.sourceUrl && (
@@ -128,6 +130,7 @@ export function NowPlayingOverlay() {
                           </a>
                         )}
                       </div>
+                      <PreviewNote track={track} className="mt-2" />
                     </div>
                     <FavoriteButton track={track} />
                   </div>

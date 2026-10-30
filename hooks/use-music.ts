@@ -26,6 +26,7 @@ const params = (values: Record<string, string | number | undefined>) => {
 
 export const queryKeys = {
   home: ["music", "home"] as const,
+  vietnamese: ["music", "vietnamese"] as const,
   trending: (options: Record<string, string | number | undefined>) => ["music", "trending", options] as const,
   latest: (genre?: string) => ["music", "latest", genre ?? "all"] as const,
   search: (query: string, type: string, offset: number) => ["music", "search", query, type, offset] as const,
@@ -43,6 +44,15 @@ export function useHomeQuery() {
   return useQuery({
     queryKey: queryKeys.home,
     queryFn: ({ signal }) => apiGet<HomeData>("/api/music/home", signal),
+  });
+}
+
+export function useVietnameseQuery() {
+  return useQuery({
+    queryKey: queryKeys.vietnamese,
+    queryFn: ({ signal }) =>
+      apiGet<{ tracks: MusicTrack[]; albums: MusicPlaylist[] }>("/api/music/vietnamese", signal),
+    staleTime: 5 * 60_000,
   });
 }
 

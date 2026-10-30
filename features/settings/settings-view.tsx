@@ -111,6 +111,7 @@ export function SettingsView({
   const clearLibrary = useLibraryStore((state) => state.clearLibrary);
   const [confirmClear, setConfirmClear] = useState(false);
   const jamendoEnabled = providers.some((provider) => provider.id === "jamendo" && provider.enabled);
+  const itunesEnabled = providers.some((provider) => provider.id === "itunes" && provider.enabled);
 
   const themes = [
     { value: "light", label: "Sáng", icon: Sun },
@@ -238,6 +239,24 @@ export function SettingsView({
           </div>
           <div className="flex items-center justify-between gap-3">
             <div>
+              <p className="text-sm font-semibold">iTunes Việt Nam</p>
+              <p className="text-xs text-muted">
+                {itunesEnabled
+                  ? "Nhạc Việt & đoạn nghe thử 30 giây · API chính thức của Apple"
+                  : "Đang tắt trên máy chủ"}
+              </p>
+            </div>
+            <a
+              href="https://performance-partners.apple.com/search-api"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            >
+              API <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
               <p className="text-sm font-semibold">LRCLIB</p>
               <p className="text-xs text-muted">Lời bài hát đồng bộ · API mở</p>
             </div>
@@ -250,6 +269,10 @@ export function SettingsView({
               Mở <ExternalLink className="h-3 w-3" />
             </a>
           </div>
+          <p className="rounded-xl bg-surface-2/60 p-3 text-[11px] leading-relaxed text-muted">
+            iTunes chỉ cung cấp đoạn nghe thử 30 giây cho mục đích quảng bá. QMusic hiển thị rõ nhãn “Nghe thử”, liên
+            kết tới Apple Music và không tải xuống, lưu trữ hay đồng bộ tệp âm thanh.
+          </p>
         </div>
       </Section>
 
@@ -259,7 +282,8 @@ export function SettingsView({
         </p>
         <p className="mt-1.5">
           Ứng dụng nghe nhạc mã nguồn mở sử dụng Next.js, React, TanStack Query và Zustand. Nhạc được phát trực tiếp
-          từ nguồn gốc; QMusic không lưu trữ hoặc phân phối lại tệp âm thanh.
+          từ nguồn gốc; QMusic không lưu trữ hoặc phân phối lại tệp âm thanh. Các bài từ iTunes Việt Nam là đoạn nghe
+          thử quảng bá 30 giây, kèm liên kết mua bản đầy đủ trên Apple Music.
         </p>
         <p className="mt-2">
           Nếu một bài hát không phát được, đó có thể do nguồn nhạc hoặc giới hạn khu vực. Hãy thử bài khác hoặc quay

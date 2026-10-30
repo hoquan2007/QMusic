@@ -8,7 +8,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
-  "connect-src 'self' https://api.audius.co https://lrclib.net https://api.jamendo.com",
+  "connect-src 'self' https://api.audius.co https://lrclib.net https://api.jamendo.com https://itunes.apple.com https://rss.marketingtools.apple.com",
   "font-src 'self' data:",
   "worker-src 'self' blob:",
   "frame-ancestors 'none'",

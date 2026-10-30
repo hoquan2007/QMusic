@@ -5,6 +5,7 @@ import { Play, X } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { Equalizer } from "@/components/music/track-card";
 import { FavoriteButton } from "@/components/music/favorite-button";
+import { PreviewBadge } from "@/components/music/preview-badge";
 import { TrackActions } from "@/components/music/track-actions";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,13 @@ export function TrackRow({
         </Link>
       </div>
 
+      {track.isPreview && (
+        <PreviewBadge
+          seconds={track.previewSeconds}
+          className="hidden shrink-0 sm:inline-flex"
+        />
+      )}
+
       {showAlbum && (
         <Link
           href={
@@ -111,8 +119,11 @@ export function TrackRow({
 
       <FavoriteButton track={track} size="sm" className="hidden shrink-0 sm:inline-flex" />
 
-      <span className="hidden w-10 shrink-0 text-right text-xs tabular-nums text-muted sm:block">
-        {formatDuration(track.duration)}
+      <span
+        className="hidden w-10 shrink-0 text-right text-xs tabular-nums text-muted sm:block"
+        title={track.isPreview ? `Đoạn nghe thử ${track.previewSeconds ?? 30} giây` : undefined}
+      >
+        {formatDuration(track.isPreview ? track.previewSeconds : track.duration)}
       </span>
 
       {onRemove && (

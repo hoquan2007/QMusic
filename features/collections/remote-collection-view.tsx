@@ -83,6 +83,21 @@ export function RemoteCollectionView({
           </Badge>
           {collection.owner && <Badge variant="outline">Bởi {collection.owner.name}</Badge>}
         </div>
+        {collection.provider === "itunes" && (
+          <p className="mt-3 max-w-2xl text-xs leading-relaxed text-muted">
+            Các bài hát trong album này được phát dưới dạng đoạn nghe thử 30 giây do iTunes cung cấp.{" "}
+            {collection.sourceUrl && (
+              <a
+                href={collection.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+              >
+                Nghe đầy đủ trên Apple Music <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              </a>
+            )}
+          </p>
+        )}
       </DetailHero>
 
       <section>
@@ -107,7 +122,10 @@ export function RemoteCollectionView({
               ))}
             </div>
             <p className="mt-3 text-center text-xs text-muted">
-              {tracks.length} bài hát · Phát trực tiếp từ {providerLabel(collection.provider)}
+              {tracks.length} bài hát ·{" "}
+              {collection.provider === "itunes"
+                ? "Nghe thử 30 giây từ iTunes"
+                : `Phát trực tiếp từ ${providerLabel(collection.provider)}`}
             </p>
           </>
         )}

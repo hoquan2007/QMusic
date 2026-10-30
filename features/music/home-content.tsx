@@ -148,6 +148,24 @@ export function HomeContent() {
         <TrackGrid tracks={data.trending} limit={10} />
       </section>
 
+      {data.vietnamese.length > 0 && (
+        <section>
+          <SectionHeader
+            title="Nhạc Việt"
+            subtitle="Bảng xếp hạng chính thức từ iTunes Việt Nam — nghe thử 30 giây"
+            href="/vietnamese"
+          />
+          <TrackGrid tracks={data.vietnamese} limit={10} />
+          {data.vietnameseAlbums.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-x-1 gap-y-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+              {data.vietnameseAlbums.slice(0, 5).map((album) => (
+                <PlaylistCard key={album.id} playlist={album} />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       <section>
         <SectionHeader
           title="Mới phát hành"

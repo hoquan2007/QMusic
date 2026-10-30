@@ -2,11 +2,14 @@
 
 QMusic là ứng dụng web nghe nhạc hiện đại, xây dựng bằng Next.js App Router và React. Ứng dụng phát nhạc trực tiếp từ các nguồn âm nhạc mở qua API chính thức, hiển thị lời bài hát đồng bộ từ LRCLIB và lưu thư viện cá nhân ngay trên thiết bị — không cần tài khoản, không scrape, không lưu trữ lại tệp âm thanh.
 
+Bên cạnh kho nhạc mở Audius, QMusic có trang **Nhạc Việt** lấy bảng xếp hạng chính thức từ iTunes Việt Nam. Các bài này phát dưới dạng đoạn nghe thử quảng bá 30 giây do Apple cung cấp, luôn có nhãn rõ ràng và liên kết tới Apple Music để nghe bản đầy đủ.
+
 Giao diện tiếng Việt, tối ưu cho desktop, tablet và mobile; chế độ tối là mặc định và chế độ sáng được hỗ trợ đầy đủ.
 
 ## Tính năng
 
 - **Khám phá nhạc thật**: trang chủ, nhạc thịnh hành, nhạc mới, thể loại, tìm kiếm bài hát / nghệ sĩ / album / playlist.
+- **Nhạc Việt**: bảng xếp hạng iTunes Việt Nam tại `/vietnamese`, kèm album nổi bật, nhãn “Nghe thử 30s” và liên kết Apple Music trên mọi bề mặt phát nhạc.
 - **Trình phát toàn cục**: phát, tạm dừng, chuyển bài, tua, âm lượng, tắt tiếng, phát ngẫu nhiên, lặp lại (tắt / toàn bộ / một bài), hàng đợi, trình phát toàn màn hình.
 - **Không gián đoạn khi điều hướng**: một thẻ audio duy nhất, trạng thái trình phát được giữ xuyên suốt các trang.
 - **Media Session & bàn phím**: tích hợp Media Session API và phím tắt điều khiển phát nhạc.
@@ -25,7 +28,7 @@ Giao diện tiếng Việt, tối ưu cho desktop, tablet và mobile; chế đ�
 | Dữ liệu | TanStack Query, Zustand (persist), Zod |
 | Trình phát | HTMLAudioElement singleton, Media Session API |
 | Kiểm thử | Vitest + Testing Library, Playwright |
-| Nguồn nhạc | Audius (mặc định), Jamendo (tùy chọn), LRCLIB (lời bài hát) |
+| Nguồn nhạc | Audius (mặc định), iTunes Việt Nam (nhạc Việt, nghe thử), Jamendo (tùy chọn), LRCLIB (lời bài hát) |
 
 ## Bắt đầu
 
@@ -55,6 +58,7 @@ Sao chép `.env.example` thành `.env.local`. Không commit `.env.local` hoặc 
 | `AUDIUS_API_KEY` | Không | Khóa đọc Audius (chỉ dùng phía server). API đọc công khai vẫn hoạt động khi để trống. |
 | `AUDIUS_APP_NAME` | Không | Tên ứng dụng gửi tới Audius, mặc định `QMusic`. |
 | `JAMENDO_CLIENT_ID` | Không | Bật provider Jamendo. Provider chỉ hoạt động khi biến này có giá trị. |
+| `ITUNES_VN_ENABLED` | Không | Bật mặc định. Đặt `false` để tắt toàn bộ nội dung iTunes Việt Nam và đoạn nghe thử 30 giây. |
 | `LRCLIB_APP_ID` | Không | Tăng hạn mức khi gọi LRCLIB. |
 | `NEXT_PUBLIC_SITE_URL` | Không | URL công khai dùng cho metadata và User-Agent. Trên Vercel, nếu để trống sẽ tự dùng domain production/preview. |
 
@@ -81,7 +85,7 @@ Project đã sẵn sàng để import trực tiếp vào Vercel, không cần `v
 2. Giữ Framework Preset **Next.js**, Root Directory `.`, Build Command `npm run build`.
 3. Chọn Node.js **22.x** (project yêu cầu `>=20.9.0`; `.nvmrc` đã ghi 22).
 4. Thêm biến môi trường nếu cần. Chỉ `NEXT_PUBLIC_SITE_URL` là công khai; không đặt khóa bí mật sau tiền tố `NEXT_PUBLIC_`.
-5. Deploy và kiểm tra `/api/music/home`, `/api/music/search?q=lofi`, `/api/lyrics`.
+5. Deploy và kiểm tra `/api/music/home`, `/api/music/vietnamese`, `/api/music/search?q=lofi`, `/api/lyrics`.
 
 Nếu bỏ trống `NEXT_PUBLIC_SITE_URL`, ứng dụng tự dùng domain Vercel production/preview. Sau khi gắn custom domain, nên đặt biến này cho môi trường Production rồi redeploy.
 
@@ -95,7 +99,7 @@ app/                     Route, metadata, API handlers
   api/lyrics/            Proxy lời bài hát LRCLIB
 components/              UI, layout, player, music cards
 features/                Màn hình theo domain (home, search, library, settings…)
-lib/providers/           Adapter Audius, Jamendo, LRCLIB
+lib/providers/           Adapter Audius, iTunes Việt Nam, Jamendo, LRCLIB
 lib/player/              Audio engine singleton
 lib/api/                 HTTP client server-side, lỗi, rate-limit handling
 stores/                  Zustand player + library (localStorage)
@@ -106,6 +110,7 @@ e2e/                     Playwright smoke & playback
 ### Các trang
 
 - `/` — trang chủ, nhạc thịnh hành, playlist và album nổi bật
+- `/vietnamese` — bảng xếp hạng nhạc Việt chính thức từ iTunes
 - `/discover`, `/latest`, `/genre/[genre]` — khám phá, nhạc mới, thể loại
 - `/search?q=…` — tìm kiếm hợp nhất
 - `/track/[provider]/[id]`, `/artist/[provider]/[id]`, `/playlist/[provider]/[id]`, `/album/[provider]/[id]`
@@ -118,6 +123,7 @@ QMusic chỉ gọi các API công khai, hợp pháp và không cố vượt qua 
 
 - **Audius** — `https://api.audius.co/v1`: trending, tìm kiếm, nghệ sĩ, playlist, album, thể loại và stream. Stream được chuẩn hóa thành URL ổn định `…/tracks/{id}/stream?app_name=QMusic` thay vì lưu URL có chữ ký hết hạn.
 - **Jamendo** — `https://api.jamendo.com/v3.0`: chỉ được bật khi có `JAMENDO_CLIENT_ID`. Nhạc Jamendo phát từ URL audio do API trả về.
+- **iTunes / Apple Music Việt Nam** — `https://itunes.apple.com` với `country=vn` và Apple Marketing RSS (`rss.marketingtools.apple.com`) cho bảng xếp hạng. Chỉ dùng dữ liệu quảng bá chính thức: mỗi bài phát đoạn nghe thử 30 giây, có nhãn “Nghe thử”, attribution “cung cấp bởi iTunes” và liên kết Apple Music ở gần. QMusic không tải xuống, lưu trữ, ghi lại hay đồng bộ tệp preview. Apple giới hạn khoảng 20 request/phút; provider cache 60 giây cho tìm kiếm và 300 giây cho lookup / bảng xếp hạng.
 - **LRCLIB** — `https://lrclib.net`: tra cứu lời đồng bộ; tự thử lại khi gặp `429` / `503`, tôn trọng `Retry-After` và trả về trạng thái “không có lời” thay vì làm hỏng trình phát.
 
 Các route `/api/music/*` và `/api/lyrics` chạy phía server, validate dữ liệu bằng Zod, giới hạn tham số, cache có kiểm soát và không nhận URL tùy ý từ client. Không có proxy mở.
@@ -130,15 +136,15 @@ Các route `/api/music/*` và `/api/lyrics` chạy phía server, validate dữ l
 
 ## Kiểm thử và trạng thái xác minh
 
-Đã chạy ngày **30/10/2026** trên Windows:
+Đã chạy ngày **31/10/2026** trên Windows:
 
 | Kiểm tra | Kết quả |
 | --- | --- |
 | `npm run typecheck` | Đạt |
 | `npm run lint` | Đạt, không lỗi / cảnh báo |
-| `npm run test` | Đạt 6 tệp, 24 test |
+| `npm run test` | Đạt 8 tệp, 31 test |
 | `npm run build` | Đạt (Next.js 16, Turbopack) |
-| `npm run test:e2e` | Đạt 8/8 test Playwright |
+| `npm run test:e2e` | Đạt 10/10 test Playwright |
 
 Các hành vi đã được xác minh thực tế:
 
@@ -146,13 +152,18 @@ Các hành vi đã được xác minh thực tế:
 - Audio thực sự chuyển sang trạng thái phát, `currentTime` tăng và tiếp tục tăng sau khi điều hướng sang trang khác.
 - Tạm dừng / phát lại, tua, tắt / bật tiếng, phát ngẫu nhiên, lặp lại, hàng đợi, trình phát toàn màn hình và chuyển bài hoạt động.
 - Yêu thích và playlist tự tạo tồn tại sau khi tải lại trang.
-- Tìm kiếm cập nhật URL sau debounce và hiển thị kết quả thật.
+- Tìm kiếm cập nhật URL sau debounce và hiển thị kết quả thật; mỗi nguồn trả tối đa 24 kết quả mỗi loại.
 - LRCLIB trả lời bài hát thật: `/api/lyrics?track=Blinding%20Lights&artist=The%20Weeknd&duration=202` trả `found=true`, `synced=true`, 39 dòng.
 - Giao diện mobile không tràn ngang; chuyển theme và giảm chuyển động được lưu lại.
+- iTunes Việt Nam trả dữ liệu thật: `/api/music/vietnamese` trả 24 bài hát và 10 album; `/api/music/search?q=son%20tung` trả 24 bài iTunes có `previewUrl`, `isPreview=true`, `previewSeconds=30` và `storeUrl` Apple Music.
+- `/vietnamese` phát đoạn preview thật từ `audio-ssl.itunes.apple.com` trong Chromium, có nhãn “Nghe thử 30s”, không lỗi CSP và liên kết Apple Music hiển thị.
+- Trang chủ có mục **Nhạc Việt** (12 bài, 8 album) và liên kết tới `/vietnamese`.
 
 ### Chưa xác minh / giới hạn
 
 - **Jamendo**: adapter đã triển khai nhưng chưa thể kiểm thử runtime vì môi trường hiện tại không có `JAMENDO_CLIENT_ID`. Khi chưa cấu hình, provider bị tắt và UI ghi rõ trạng thái.
+- **iTunes chỉ có đoạn nghe thử**: Apple không cấp stream đầy đủ qua iTunes Search API. Mọi bài iTunes trong QMusic chỉ phát 30 giây; nút và liên kết “Apple Music” mở bản đầy đủ. Đây là giới hạn có chủ đích, không phải lỗi.
+- **Hạn mức iTunes**: khoảng 20 request/phút cho mỗi IP. QMusic cache kết quả và xử lý lỗi upstream, nhưng lưu lượng rất cao có thể nhận `429` / `503` tạm thời.
 - **Tài khoản / đồng bộ đa thiết bị**: chưa triển khai. Ứng dụng hiện là guest-only với `localStorage`; không có Supabase auth, database hay RLS.
 - **Độ phủ lời bài hát**: LRCLIB là cơ sở dữ liệu cộng đồng, không phải mọi bản nhạc Audius / Jamendo đều có lời. QMusic hiển thị trạng thái không có lời và không chặn phát nhạc.
 - **Phụ thuộc upstream**: Audius và LRCLIB có thể trả `429`, `503`, timeout hoặc nội dung không còn tồn tại. UI có thông báo lỗi và nút thử lại, nhưng không thể bảo đảm mọi bài luôn phát được.
@@ -161,3 +172,5 @@ Các hành vi đã được xác minh thực tế:
 ## Giấy phép và bản quyền nội dung
 
 Mã nguồn trong repository này chưa kèm tệp giấy phép riêng. Âm nhạc, ảnh bìa và lời bài hát thuộc quyền của nghệ sĩ và nhà cung cấp tương ứng; QMusic chỉ hiển thị và phát trực tiếp từ nguồn gốc, không phân phối lại nội dung.
+
+Riêng nội dung từ iTunes: đoạn nghe thử, ảnh bìa và metadata được Apple cung cấp cho mục đích quảng bá sản phẩm trên cửa hàng. QMusic hiển thị chúng gần liên kết Apple Music, ghi rõ nguồn “cung cấp bởi iTunes”, chỉ phát trực tuyến và không tải xuống, lưu trữ, ghi lại hay đồng bộ. Việc sử dụng này tuân theo điều khoản của iTunes Search API.

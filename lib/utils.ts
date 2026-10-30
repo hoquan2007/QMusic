@@ -11,7 +11,10 @@ export function trackKey(track: { provider: string; remoteId: string }) {
 }
 
 export function providerLabel(provider: string) {
-  return provider === "audius" ? "Audius" : provider === "jamendo" ? "Jamendo" : provider;
+  if (provider === "audius") return "Audius";
+  if (provider === "jamendo") return "Jamendo";
+  if (provider === "itunes") return "iTunes Việt Nam";
+  return provider;
 }
 
 export function clamp(value: number, min: number, max: number) {

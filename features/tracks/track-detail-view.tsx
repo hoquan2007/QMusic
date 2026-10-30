@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, ListPlus, Play, Radio, Sparkles } from "lucide-react";
+import { ExternalLink, ListPlus, Play, Radio, Sparkles, Timer } from "lucide-react";
 import { DetailHero } from "@/components/music/detail-hero";
 import { FavoriteButton } from "@/components/music/favorite-button";
+import { PreviewBadge, PreviewNote } from "@/components/music/preview-badge";
 import { TrackRow } from "@/components/music/track-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ function PlayNowButton({ track }: { track: MusicTrack }) {
   return (
     <Button onClick={() => playTrack(track, [track])} disabled={!track.streamable}>
       <Play className={isCurrent && isPlaying ? "h-4 w-4" : "h-4 w-4 fill-current"} />
-      {isCurrent && isPlaying ? "Tạm dừng" : "Phát bài hát"}
+      {isCurrent && isPlaying ? "Tạm dừng" : track.isPreview ? "Nghe thử 30 giây" : "Phát bài hát"}
     </Button>
   );
 }
@@ -98,14 +99,15 @@ export function TrackDetailView({
                 rel="noreferrer noopener"
                 className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold text-muted transition-colors hover:text-foreground"
               >
-                <ExternalLink className="h-4 w-4" /> Nguồn gốc
+                <ExternalLink className="h-4 w-4" /> {track.isPreview ? "Apple Music" : "Nguồn gốc"}
               </a>
             )}
           </>
         }
       >
-        {(track.genre || track.mood || track.license) && (
+        {(track.genre || track.mood || track.license || track.isPreview) && (
           <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            {track.isPreview && <PreviewBadge seconds={track.previewSeconds} />}
             {track.genre && <Badge variant="accent">{track.genre}</Badge>}
             {track.mood && <Badge variant="outline">{track.mood}</Badge>}
             {track.license && (
@@ -137,6 +139,19 @@ export function TrackDetailView({
               </p>
             </div>
           </section>
+
+          {track.isPreview && (
+            <section className="rounded-2xl border border-primary/25 bg-primary/5 p-5">
+              <h2 className="flex items-center gap-2 font-display text-base font-bold">
+                <Timer className="h-4 w-4 text-primary" /> Đoạn nghe thử
+              </h2>
+              <PreviewNote track={track} className="mt-2 text-sm" />
+              <p className="mt-2 text-xs leading-relaxed text-muted">
+                QMusic chỉ phát trực tuyến đoạn nghe thử chính thức do iTunes cung cấp, không tải xuống và không lưu
+                trữ tệp âm thanh.
+              </p>
+            </section>
+          )}
 
           {track.license && (
             <section className="rounded-2xl border border-border bg-surface p-5">

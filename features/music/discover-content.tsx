@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Compass, Disc3, Loader2, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Compass, Disc3, Loader2, Music2, Sparkles } from "lucide-react";
 import { CardGridSkeleton } from "@/components/music/track-list-skeleton";
 import { SectionHeader } from "@/components/music/section-header";
 import { GenreCard } from "@/components/music/genre-card";
@@ -44,10 +45,31 @@ export function DiscoverContent() {
           Tìm nhạc mới, đi theo giai điệu
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Duyệt nhạc thịnh hành trên Audius theo thể loại và khoảng thời gian. Tất cả đều là nguồn nhạc mở, phát trực
-          tiếp và hợp pháp.
+          Duyệt nhạc thịnh hành trên Audius theo thể loại và khoảng thời gian, hoặc khám phá bảng xếp hạng nhạc Việt
+          chính thức từ iTunes. Tất cả đều dùng API chính thức và phát trực tuyến hợp pháp.
         </p>
       </header>
+
+      <Link
+        href="/vietnamese"
+        className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+            <Music2 className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">Nhạc Việt — bảng xếp hạng iTunes</p>
+            <p className="mt-0.5 text-xs text-muted">
+              Top bài hát và album Việt Nam, kèm đoạn nghe thử 30 giây do iTunes cung cấp.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+          Xem bảng xếp hạng
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </Link>
 
       <section>
         <SectionHeader

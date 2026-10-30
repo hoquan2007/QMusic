@@ -9,6 +9,7 @@ import {
   Home,
   Library,
   ListMusic,
+  Music2,
   Plus,
   Search,
   Settings,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const primaryNav = [
   { href: "/", label: "Trang chủ", icon: Home },
   { href: "/discover", label: "Khám phá", icon: Compass },
+  { href: "/vietnamese", label: "Nhạc Việt", icon: Music2 },
   { href: "/search", label: "Tìm kiếm", icon: Search },
 ];
 
@@ -161,6 +163,17 @@ export function Sidebar() {
             className="font-semibold text-muted hover:text-foreground"
           >
             Audius
+          </a>
+        </p>
+        <p>
+          Nhạc Việt:{" "}
+          <a
+            href="https://music.apple.com/vn/charts"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-semibold text-muted hover:text-foreground"
+          >
+            iTunes
           </a>
         </p>
         <p>

@@ -20,6 +20,10 @@ import type { MusicArtist, MusicPlaylist, MusicTrack } from "@/types/music";
 type SearchType = "all" | "tracks" | "artists" | "playlists";
 
 const SUGGESTED_GENRES = [
+  "Nhạc Việt",
+  "V-Pop",
+  "Rap Việt",
+  "Ballad Việt",
   "Electronic",
   "Hip-Hop/Rap",
   "Lo-Fi",
@@ -122,7 +126,7 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
         </h1>
         <p className="mt-1.5 text-sm text-muted">
           Tìm trên {providerNames.join(" và ") || "các nguồn nhạc đang bật"}. Kết quả được chuẩn hóa từ nguồn nhạc
-          thật.
+          thật; các bài từ iTunes Việt Nam phát dưới dạng đoạn nghe thử 30 giây.
         </p>
       </div>
 

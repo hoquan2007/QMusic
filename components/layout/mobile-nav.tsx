@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, House, Library, Search, Settings } from "lucide-react";
+import { Compass, House, Library, Music2, Search, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Trang chủ", icon: House },
   { href: "/discover", label: "Khám phá", icon: Compass },
+  { href: "/vietnamese", label: "Nhạc Việt", icon: Music2 },
   { href: "/search", label: "Tìm kiếm", icon: Search },
   { href: "/library", label: "Thư viện", icon: Library },
   { href: "/settings", label: "Cài đặt", icon: Settings },
@@ -26,7 +27,7 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border glass pb-[env(safe-area-inset-bottom)] lg:hidden"
       aria-label="Điều hướng di động"
     >
-      <div className="grid h-16 grid-cols-5">
+      <div className="grid h-16 grid-cols-6">
         {items.map((item) => {
           const isActive = active(pathname, item.href);
           return (

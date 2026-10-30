@@ -78,7 +78,7 @@ test("track detail page exposes real metadata and lyrics panel", async ({ page }
   await expect(trackLink).toBeVisible({ timeout: 45_000 });
   await trackLink.click();
 
-  await expect(page).toHaveURL(/\/track\/(audius|jamendo)\//);
+  await expect(page).toHaveURL(/\/track\/(audius|jamendo|itunes)\//);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Lời bài hát", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Phát bài hát" }).first()).toBeVisible();

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ListMusic, Maximize2, Mic2 } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { FavoriteButton } from "@/components/music/favorite-button";
+import { PreviewBadge, StoreLink } from "@/components/music/preview-badge";
 import { ProgressSlider } from "@/components/player/progress-slider";
 import { PlayerTransport } from "@/components/player/player-transport";
 import { VolumeControl } from "@/components/player/volume-control";
@@ -45,6 +46,12 @@ export function PlayerBar() {
                 >
                   {track.artist.name}
                 </Link>
+                {track.isPreview && (
+                  <div className="mt-0.5 flex items-center gap-2">
+                    <PreviewBadge seconds={track.previewSeconds} className="px-1.5 py-0" />
+                    <StoreLink track={track} className="hidden text-[11px] xl:inline-flex" />
+                  </div>
+                )}
                 {error && (
                   <button
                     type="button"

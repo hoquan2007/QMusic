@@ -1,4 +1,4 @@
-export type ProviderId = "audius" | "jamendo";
+export type ProviderId = "audius" | "jamendo" | "itunes";
 
 /** Ảnh đã chuẩn hóa, giữ mirrors để retry như khuyến nghị của Audius. */
 export interface RemoteImage {
@@ -57,6 +57,12 @@ export interface MusicTrack {
   streamUrl?: string;
   sourceUrl?: string;
   license?: MusicLicenseInfo;
+  /** Bản phát là đoạn nghe thử có giới hạn thời lượng (ví dụ iTunes 30 giây). */
+  isPreview?: boolean;
+  /** Độ dài đoạn nghe thử, tính bằng giây. */
+  previewSeconds?: number;
+  /** Liên kết tới cửa hàng để mua / nghe bản đầy đủ. */
+  storeUrl?: string;
 }
 
 export interface MusicPlaylist {
@@ -130,6 +136,9 @@ export interface HomeData {
   playlists: MusicPlaylist[];
   albums: MusicPlaylist[];
   genres: MusicGenre[];
+  /** Bảng xếp hạng nhạc Việt chính thức từ iTunes Việt Nam. */
+  vietnamese: MusicTrack[];
+  vietnameseAlbums: MusicPlaylist[];
   providers: { id: ProviderId; name: string; enabled: boolean }[];
 }
 

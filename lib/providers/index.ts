@@ -1,5 +1,6 @@
 import { ApiError } from "@/lib/api/errors";
 import { audiusProvider } from "@/lib/providers/audius";
+import { itunesProvider } from "@/lib/providers/itunes";
 import { jamendoProvider } from "@/lib/providers/jamendo";
 import type {
   HomeData,
@@ -12,10 +13,10 @@ import type {
   SearchResult,
 } from "@/types/music";
 
-export const providers: MusicProvider[] = [audiusProvider, jamendoProvider];
+export const providers: MusicProvider[] = [audiusProvider, jamendoProvider, itunesProvider];
 
 export function isProviderId(value: string): value is ProviderId {
-  return value === "audius" || value === "jamendo";
+  return value === "audius" || value === "jamendo" || value === "itunes";
 }
 
 export function getProvider(id: string): MusicProvider {
@@ -130,6 +131,8 @@ export async function getHomeData(): Promise<HomeData> {
     playlists: featuredPlaylists,
     albums: featuredAlbums,
     genres: genres.status === "fulfilled" ? genres.value : [],
+    vietnamese: trendingTracks.filter((track) => track.provider === "itunes").slice(0, 12),
+    vietnameseAlbums: featuredAlbums.filter((album) => album.provider === "itunes").slice(0, 8),
     providers: providerSummary(),
   };
 }
