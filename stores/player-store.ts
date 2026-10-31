@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { audioEngine } from "@/lib/player/audio-engine";
+import { isVideoTrack } from "@/lib/youtube";
 import type { MusicTrack } from "@/types/music";
 
 export type RepeatMode = "off" | "all" | "one";
@@ -54,6 +55,16 @@ function startTrack(
   track: MusicTrack,
   autoplay = true,
 ) {
+  if (isVideoTrack(track)) {
+    set({
+      currentTime: 0,
+      duration: 0,
+      isPlaying: false,
+      isBuffering: false,
+      error: "Video YouTube được phát trong khung nhúng, không dùng hàng đợi âm thanh.",
+    });
+    return;
+  }
   if (!track.streamUrl || !track.streamable) {
     set({
       currentTime: 0,
@@ -92,6 +103,15 @@ export const usePlayerStore = create<PlayerState>()(
 
       playTrack: (track, context) => {
         const state = get();
+
+        if (isVideoTrack(track)) {
+          set({
+            isPlaying: false,
+            isBuffering: false,
+            error: "Video YouTube được phát trong khung nhúng, không dùng hàng đợi âm thanh.",
+          });
+          return;
+        }
 
         if (state.queue[state.currentIndex]?.id === track.id) {
           if (state.isPlaying) {
@@ -141,11 +161,12 @@ export const usePlayerStore = create<PlayerState>()(
       },
 
       playQueue: (tracks, startIndex = 0) => {
-        if (tracks.length === 0) return;
-        const safeIndex = Math.max(0, Math.min(startIndex, tracks.length - 1));
-        const track = tracks[safeIndex];
+        const audioTracks = tracks.filter((track) => !isVideoTrack(track));
+        if (audioTracks.length === 0) return;
+        const safeIndex = Math.max(0, Math.min(startIndex, audioTracks.length - 1));
+        const track = audioTracks[safeIndex];
         if (!track) return;
-        set({ queue: tracks, currentIndex: safeIndex, shuffleHistory: [] });
+        set({ queue: audioTracks, currentIndex: safeIndex, shuffleHistory: [] });
         startTrack(set, track, true);
       },
 
@@ -262,10 +283,12 @@ export const usePlayerStore = create<PlayerState>()(
       },
 
       addToQueue: (track) => {
+        if (isVideoTrack(track)) return;
         set((state) => ({ queue: [...state.queue, track] }));
       },
 
       playNext: (track) => {
+        if (isVideoTrack(track)) return;
         set((state) => {
           if (state.queue.length === 0) {
             return { queue: [track], currentIndex: 0 };

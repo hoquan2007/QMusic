@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { SearchExperience } from "@/features/search/search-experience";
 import { Skeleton } from "@/components/ui/skeleton";
-import { enabledProviders } from "@/lib/providers";
+import { audioProviders } from "@/lib/providers";
+import { youtubeProvider } from "@/lib/providers/youtube";
 
 export const metadata: Metadata = {
   title: "Tìm kiếm",
@@ -22,7 +23,10 @@ export default async function SearchPage() {
         </div>
       }
     >
-      <SearchExperience providerNames={enabledProviders().map((provider) => provider.name)} />
+      <SearchExperience
+        providerNames={audioProviders().map((provider) => provider.name)}
+        youtubeEnabled={youtubeProvider.enabled}
+      />
     </Suspense>
   );
 }

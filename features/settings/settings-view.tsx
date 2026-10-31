@@ -112,6 +112,7 @@ export function SettingsView({
   const [confirmClear, setConfirmClear] = useState(false);
   const jamendoEnabled = providers.some((provider) => provider.id === "jamendo" && provider.enabled);
   const itunesEnabled = providers.some((provider) => provider.id === "itunes" && provider.enabled);
+  const youtubeEnabled = providers.some((provider) => provider.id === "youtube" && provider.enabled);
 
   const themes = [
     { value: "light", label: "Sáng", icon: Sun },
@@ -257,6 +258,24 @@ export function SettingsView({
           </div>
           <div className="flex items-center justify-between gap-3">
             <div>
+              <p className="text-sm font-semibold">YouTube</p>
+              <p className="text-xs text-muted">
+                {youtubeEnabled
+                  ? "Video & tìm kiếm đã bật · trình phát nhúng chính thức"
+                  : "Chưa cấu hình · thêm YOUTUBE_API_KEY để bật tìm kiếm video"}
+              </p>
+            </div>
+            <a
+              href="https://developers.google.com/youtube/v3"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            >
+              API <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
               <p className="text-sm font-semibold">LRCLIB</p>
               <p className="text-xs text-muted">Lời bài hát đồng bộ · API mở</p>
             </div>
@@ -271,7 +290,8 @@ export function SettingsView({
           </div>
           <p className="rounded-xl bg-surface-2/60 p-3 text-[11px] leading-relaxed text-muted">
             iTunes chỉ cung cấp đoạn nghe thử 30 giây cho mục đích quảng bá. QMusic hiển thị rõ nhãn “Nghe thử”, liên
-            kết tới Apple Music và không tải xuống, lưu trữ hay đồng bộ tệp âm thanh.
+            kết tới Apple Music và không tải xuống, lưu trữ hay đồng bộ tệp âm thanh. Video YouTube luôn phát
+            trong trình phát nhúng chính thức, giữ nguyên quảng cáo và không đi vào hàng đợi audio.
           </p>
         </div>
       </Section>

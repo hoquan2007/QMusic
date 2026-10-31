@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowRight, Compass, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Sparkles, Video } from "lucide-react";
 import { ContinueListening, RecentTracks } from "@/components/home/continue-listening";
 import { HomeHero } from "@/components/home/home-hero";
 import { ArtistCard } from "@/components/music/artist-card";
@@ -165,6 +165,30 @@ export function HomeContent() {
           )}
         </section>
       )}
+
+      <section className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5 sm:p-7">
+        <div className="pointer-events-none absolute inset-0 hero-glow opacity-25" />
+        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+              <Video className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Chế độ video</p>
+              <h2 className="mt-0.5 font-display text-xl font-bold tracking-tight sm:text-2xl">
+                MV chính thức, trọn khung hình
+              </h2>
+              <p className="mt-1 max-w-xl text-sm text-muted">
+                Xem video bằng trình phát nhúng YouTube chính thức. Quảng cáo được giữ nguyên, video luôn hiển
+                thị và không tách âm thanh.
+              </p>
+            </div>
+          </div>
+          <Link href="/videos" className={buttonVariants({ variant: "outline" })}>
+            Mở thư viện video <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
 
       <section>
         <SectionHeader

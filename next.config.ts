@@ -11,6 +11,7 @@ const csp = [
   "connect-src 'self' https://api.audius.co https://lrclib.net https://api.jamendo.com https://itunes.apple.com https://rss.marketingtools.apple.com",
   "font-src 'self' data:",
   "worker-src 'self' blob:",
+  "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

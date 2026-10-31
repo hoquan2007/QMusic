@@ -1,4 +1,4 @@
-import { enabledProviders, isProviderId } from "@/lib/providers";
+import { audioProviders, isProviderId } from "@/lib/providers";
 import { ApiError } from "@/lib/api/errors";
 import { intParam, jsonError, jsonOk, textParam } from "@/lib/api/route-utils";
 import type { MusicTrack } from "@/types/music";
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const offset = intParam(searchParams, "offset", 0, 0, 1000);
     const limit = intParam(searchParams, "limit", 24, 1, 50);
 
-    let active = enabledProviders();
+    let active = audioProviders();
     if (providerId !== "all") {
       if (!isProviderId(providerId)) throw new ApiError("Nguồn nhạc không hợp lệ.", 400, "INVALID_PROVIDER");
       active = active.filter((provider) => provider.id === providerId);

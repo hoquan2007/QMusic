@@ -18,10 +18,10 @@ export const metadata: Metadata = {
     template: "%s · QMusic",
   },
   description:
-    "QMusic là trình nghe nhạc hiện đại kết nối kho nhạc mở Audius, Jamendo và bảng xếp hạng nhạc Việt từ iTunes, cùng lời bài hát LRCLIB. Khám phá, tìm kiếm và tạo thư viện cá nhân của bạn.",
+    "QMusic là trình nghe nhạc và xem video hiện đại kết nối kho nhạc mở Audius, Jamendo, bảng xếp hạng nhạc Việt từ iTunes và video YouTube chính thức, cùng lời bài hát LRCLIB. Khám phá, tìm kiếm và tạo thư viện cá nhân của bạn.",
   applicationName: "QMusic",
   metadataBase: new URL(SITE_URL),
-  keywords: ["QMusic", "nghe nhạc", "nhạc Việt", "Audius", "Jamendo", "iTunes", "LRCLIB", "streaming"],
+  keywords: ["QMusic", "nghe nhạc", "xem MV", "nhạc Việt", "Audius", "Jamendo", "iTunes", "YouTube", "LRCLIB", "streaming"],
   openGraph: {
     title: "QMusic — Nghe nhạc mở, khám phá không giới hạn",
     description: "Trình nghe nhạc hiện đại từ kho nhạc mở Audius và bảng xếp hạng nhạc Việt iTunes.",

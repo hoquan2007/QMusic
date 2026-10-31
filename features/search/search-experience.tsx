@@ -7,6 +7,7 @@ import { ArtistCard } from "@/components/music/artist-card";
 import { PlaylistCard } from "@/components/music/playlist-card";
 import { SectionHeader } from "@/components/music/section-header";
 import { TrackRow } from "@/components/music/track-row";
+import { VideoGrid } from "@/components/music/video-grid";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
@@ -14,10 +15,11 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useSearchInfiniteQuery } from "@/hooks/use-music";
+import { useSearchInfiniteQuery, useVideosQuery } from "@/hooks/use-music";
 import type { MusicArtist, MusicPlaylist, MusicTrack } from "@/types/music";
 
-type SearchType = "all" | "tracks" | "artists" | "playlists";
+type SearchType = "all" | "tracks" | "artists" | "playlists" | "videos";
+type AudioSearchType = Exclude<SearchType, "videos">;
 
 const SUGGESTED_GENRES = [
   "Nhạc Việt",
@@ -64,14 +66,22 @@ function SearchSkeleton() {
   );
 }
 
-export function SearchExperience({ providerNames }: { providerNames: string[] }) {
+export function SearchExperience({
+  providerNames,
+  youtubeEnabled,
+}: {
+  providerNames: string[];
+  youtubeEnabled: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlQuery = (searchParams.get("q") ?? "").trim();
   const urlType = searchParams.get("type") ?? "all";
-  const type: SearchType = ["all", "tracks", "artists", "playlists"].includes(urlType)
-    ? (urlType as SearchType)
-    : "all";
+  const allowedTypes = youtubeEnabled
+    ? ["all", "tracks", "artists", "playlists", "videos"]
+    : ["all", "tracks", "artists", "playlists"];
+  const type: SearchType = allowedTypes.includes(urlType) ? (urlType as SearchType) : "all";
+  const audioType: AudioSearchType = type === "videos" ? "all" : type;
 
   const [input, setInput] = useState(urlQuery);
   const debounced = useDebounce(input, 350);
@@ -91,7 +101,8 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
     if (!focusedRef.current) setInput(urlQuery);
   }, [urlQuery]);
 
-  const query = useSearchInfiniteQuery(urlQuery, type);
+  const query = useSearchInfiniteQuery(urlQuery, audioType, type !== "videos");
+  const videoQuery = useVideosQuery(urlQuery, youtubeEnabled && type === "videos");
   const pages = useMemo(() => query.data?.pages ?? [], [query.data]);
 
   const tracks = useMemo(() => unique<MusicTrack>(pages.flatMap((page) => page.tracks)), [pages]);
@@ -101,11 +112,27 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
     [pages],
   );
   const albums = useMemo(() => unique<MusicPlaylist>(pages.flatMap((page) => page.albums)), [pages]);
+  const videos = useMemo(() => unique<MusicTrack>(videoQuery.data?.videos ?? []), [videoQuery.data]);
   const warnings = useMemo(
-    () => [...new Set(pages.flatMap((page) => page.warnings ?? []))],
-    [pages],
+    () =>
+      [
+        ...new Set([
+          ...pages.flatMap((page) => page.warnings ?? []),
+          ...(videoQuery.data?.warnings ?? []),
+        ]),
+      ],
+    [pages, videoQuery.data],
   );
-  const total = tracks.length + artists.length + playlists.length + albums.length;
+  const total =
+    tracks.length +
+    artists.length +
+    playlists.length +
+    albums.length +
+    (type === "videos" ? videos.length : 0);
+  const activeQuery = type === "videos" ? videoQuery : query;
+  const isLoading = activeQuery.isLoading;
+  const isError = activeQuery.isError;
+  const error = activeQuery.error;
 
   function changeType(next: SearchType) {
     const params = new URLSearchParams(searchParams.toString());
@@ -127,6 +154,7 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
         <p className="mt-1.5 text-sm text-muted">
           Tìm trên {providerNames.join(" và ") || "các nguồn nhạc đang bật"}. Kết quả được chuẩn hóa từ nguồn nhạc
           thật; các bài từ iTunes Việt Nam phát dưới dạng đoạn nghe thử 30 giây.
+          {youtubeEnabled && " Chuyển sang tab Video để tìm MV chính thức trên YouTube."}
         </p>
       </div>
 
@@ -141,14 +169,14 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
           onBlur={() => {
             focusedRef.current = false;
           }}
-          placeholder="Nhập tên bài hát, nghệ sĩ, playlist…"
-          aria-label="Tìm kiếm âm nhạc"
+          placeholder={type === "videos" ? "Nhập tên MV, nghệ sĩ hoặc bài hát…" : "Nhập tên bài hát, nghệ sĩ, playlist…"}
+          aria-label={type === "videos" ? "Tìm kiếm video âm nhạc" : "Tìm kiếm âm nhạc"}
           autoFocus
           className="h-14 rounded-2xl border-border bg-surface pl-12 pr-12 text-base shadow-sm"
         />
-        {(input || query.isFetching) && (
+        {(input || activeQuery.isFetching) && (
           <span className="absolute right-4 top-1/2 -translate-y-1/2">
-            {query.isFetching ? (
+            {activeQuery.isFetching ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
             ) : (
               <button
@@ -170,6 +198,7 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
             <TabsTrigger value="tracks">Bài hát</TabsTrigger>
             <TabsTrigger value="artists">Nghệ sĩ</TabsTrigger>
             <TabsTrigger value="playlists">Playlist</TabsTrigger>
+            {youtubeEnabled && <TabsTrigger value="videos">Video</TabsTrigger>}
           </TabsList>
         </Tabs>
         {urlQuery && total > 0 && (
@@ -216,13 +245,25 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
               </div>
             </div>
           </div>
-        ) : query.isLoading ? (
-          <SearchSkeleton />
-        ) : query.isError ? (
+        ) : isLoading ? (
+          type === "videos" ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="space-y-3 p-2">
+                  <Skeleton className="aspect-video w-full rounded-xl" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <SearchSkeleton />
+          )
+        ) : isError ? (
           <ErrorState
             title="Tìm kiếm thất bại"
-            message={query.error instanceof Error ? query.error.message : undefined}
-            onRetry={() => void query.refetch()}
+            message={error instanceof Error ? error.message : undefined}
+            onRetry={() => void activeQuery.refetch()}
           />
         ) : total === 0 ? (
           <EmptyState
@@ -232,6 +273,17 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
           />
         ) : (
           <div className="space-y-9">
+            {type === "videos" && videos.length > 0 && (
+              <section>
+                <SectionHeader
+                  title="Video âm nhạc"
+                  subtitle="MV chính thức từ YouTube, phát trong trình phát nhúng đầy đủ"
+                  className="mb-3"
+                />
+                <VideoGrid videos={videos} />
+              </section>
+            )}
+
             {(type === "all" || type === "tracks") && tracks.length > 0 && (
               <section>
                 <SectionHeader
@@ -284,7 +336,7 @@ export function SearchExperience({ providerNames }: { providerNames: string[] })
               </section>
             )}
 
-            {query.hasNextPage && (
+            {type !== "videos" && query.hasNextPage && (
               <div className="flex justify-center">
                 <Button
                   variant="outline"

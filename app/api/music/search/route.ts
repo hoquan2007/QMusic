@@ -1,4 +1,4 @@
-import { enabledProviders, isProviderId, searchEverything } from "@/lib/providers";
+import { audioProviders, isProviderId, searchEverything } from "@/lib/providers";
 import { intParam, jsonError, jsonOk, textParam } from "@/lib/api/route-utils";
 import type { MusicArtist, MusicPlaylist, MusicTrack } from "@/types/music";
 import { ApiError } from "@/lib/api/errors";
@@ -28,10 +28,13 @@ export async function GET(request: Request) {
       return jsonOk({ ...result, warnings }, 30);
     }
 
-    let active = enabledProviders();
+    let active = audioProviders();
     if (providerFilter !== "all") {
       if (!isProviderId(providerFilter)) {
         throw new ApiError("Nguồn nhạc không hợp lệ.", 400, "INVALID_PROVIDER");
+      }
+      if (providerFilter === "youtube") {
+        throw new ApiError("Video YouTube có trang tìm kiếm riêng tại /videos.", 400, "VIDEO_PROVIDER");
       }
       active = active.filter((provider) => provider.id === providerFilter);
     }

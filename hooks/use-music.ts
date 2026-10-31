@@ -30,6 +30,7 @@ export const queryKeys = {
   trending: (options: Record<string, string | number | undefined>) => ["music", "trending", options] as const,
   latest: (genre?: string) => ["music", "latest", genre ?? "all"] as const,
   search: (query: string, type: string, offset: number) => ["music", "search", query, type, offset] as const,
+  videos: (query: string) => ["music", "videos", query] as const,
   track: (provider: string, id: string) => ["music", "track", provider, id] as const,
   artist: (provider: string, id: string) => ["music", "artist", provider, id] as const,
   artistTracks: (provider: string, id: string) => ["music", "artist-tracks", provider, id] as const,
@@ -125,6 +126,7 @@ export function useSearchQuery(query: string, type: "all" | "tracks" | "artists"
 export function useSearchInfiniteQuery(
   query: string,
   type: "all" | "tracks" | "artists" | "playlists",
+  enabled = true,
 ) {
   return useInfiniteQuery({
     queryKey: [...queryKeys.search(query, type, 0), "infinite"],
@@ -142,7 +144,21 @@ export function useSearchInfiniteQuery(
         lastPage.albums.length;
       return count >= 24 ? lastPageParam + 24 : undefined;
     },
-    enabled: query.trim().length > 0,
+    enabled: enabled && query.trim().length > 0,
+  });
+}
+
+export function useVideosQuery(query: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.videos(query),
+    queryFn: ({ signal }) =>
+      apiGet<{ videos: MusicTrack[]; warnings: string[] }>(
+        `/api/music/videos${params({ q: query.trim(), limit: 30 })}`,
+        signal,
+      ),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: query.trim() ? 2 * 60_000 : 5 * 60_000,
   });
 }
 

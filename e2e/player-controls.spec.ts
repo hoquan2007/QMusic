@@ -29,6 +29,20 @@ function audioState(page: Page) {
   });
 }
 
+/**
+ * Kết quả của lần chuyển bài: đang phát, lỗi nguồn phát, hoặc chưa có tín hiệu.
+ * Audius là nguồn trực tiếp nên một số bài có thể tạm không phát được.
+ */
+function nextTrackOutcome(page: Page) {
+  return page.evaluate<"playing" | "error" | "pending">(() => {
+    const audio = (window as unknown as { __audios?: HTMLAudioElement[] }).__audios?.[0];
+    if (!audio) return "pending";
+    if (audio.error) return "error";
+    if (!audio.paused && audio.currentTime > 0.5) return "playing";
+    return "pending";
+  });
+}
+
 test("player controls pause, seek, mute, shuffle, repeat, next and overlays", async ({ page }) => {
   await installAudioCapture(page);
   await page.goto("/");
@@ -90,10 +104,28 @@ test("player controls pause, seek, mute, shuffle, repeat, next and overlays", as
   await expect(page.getByRole("heading", { name: "Lời bài hát" })).toBeVisible();
   await page.getByRole("button", { name: "Đóng trình phát toàn màn hình" }).click();
 
-  const beforeNext = (await audioState(page))?.src ?? "";
-  await page.getByRole("button", { name: "Bài tiếp theo" }).click();
-  await expect.poll(async () => (await audioState(page))?.src ?? "", { timeout: 45_000 }).not.toBe(beforeNext);
-  await expect.poll(async () => (await audioState(page))?.currentTime ?? 0, { timeout: 45_000 }).toBeGreaterThan(0);
+  // Audius phát trực tiếp: thỉnh thoảng một bài trong hàng đợi không còn phát được
+  // (creator node trả 401). Vẫn kiểm tra nút "Bài tiếp theo" đổi bài và phát được,
+  // nhưng cho phép bỏ qua tối đa vài bài lỗi do nguồn thượng nguồn.
+  let playable = false;
+  for (let attempt = 0; attempt < 5 && !playable; attempt += 1) {
+    const beforeNext = (await audioState(page))?.src ?? "";
+    await page.getByRole("button", { name: "Bài tiếp theo" }).click();
+    await expect
+      .poll(async () => (await audioState(page))?.src ?? "", { timeout: 45_000 })
+      .not.toBe(beforeNext);
+
+    await expect
+      .poll(() => nextTrackOutcome(page), {
+        timeout: 30_000,
+        message: "Chờ bài kế tiếp phát hoặc báo lỗi nguồn phát",
+      })
+      .not.toBe("pending");
+
+    playable = (await nextTrackOutcome(page)) === "playing";
+  }
+
+  expect(playable, "Không có bài kế tiếp nào phát được trong hàng đợi Audius").toBe(true);
   const nextTrack = await audioState(page);
   expect(nextTrack?.paused).toBe(false);
   expect(nextTrack?.error).toBeNull();

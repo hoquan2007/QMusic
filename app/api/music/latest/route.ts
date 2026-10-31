@@ -1,4 +1,4 @@
-import { enabledProviders } from "@/lib/providers";
+import { audioProviders } from "@/lib/providers";
 import { ApiError } from "@/lib/api/errors";
 import { intParam, jsonError, jsonOk, textParam } from "@/lib/api/route-utils";
 import type { MusicTrack } from "@/types/music";
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const limit = intParam(searchParams, "limit", 24, 1, 50);
 
     const settled = await Promise.allSettled(
-      enabledProviders().map((provider) => provider.getLatestTracks({ limit, offset, genre })),
+      audioProviders().map((provider) => provider.getLatestTracks({ limit, offset, genre })),
     );
     const tracks: MusicTrack[] = [];
     settled.forEach((outcome) => {

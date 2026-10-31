@@ -1,4 +1,4 @@
-import { enabledProviders, providerSummary } from "@/lib/providers";
+import { audioProviders, providerSummary } from "@/lib/providers";
 import { jsonError, jsonOk } from "@/lib/api/route-utils";
 import type { MusicGenre } from "@/types/music";
 
@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const active = enabledProviders();
+    const active = audioProviders();
     const settled = await Promise.allSettled(active.map((provider) => provider.getGenres()));
     const map = new Map<string, number>();
     for (const outcome of settled) {

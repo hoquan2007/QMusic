@@ -1,4 +1,7 @@
-export type ProviderId = "audius" | "jamendo" | "itunes";
+export type ProviderId = "audius" | "jamendo" | "itunes" | "youtube";
+
+/** Bài hát phát bằng audio, hoặc video phát bằng trình phát nhúng chính thức của YouTube. */
+export type PlaybackMode = "audio" | "video";
 
 /** Ảnh đã chuẩn hóa, giữ mirrors để retry như khuyến nghị của Audius. */
 export interface RemoteImage {
@@ -56,6 +59,10 @@ export interface MusicTrack {
   streamable: boolean;
   streamUrl?: string;
   sourceUrl?: string;
+  /** Mặc định là audio; video dùng iframe YouTube và không đi vào hàng đợi âm thanh. */
+  playbackMode?: PlaybackMode;
+  /** ID video YouTube 11 ký tự khi playbackMode là "video". */
+  videoId?: string;
   license?: MusicLicenseInfo;
   /** Bản phát là đoạn nghe thử có giới hạn thời lượng (ví dụ iTunes 30 giây). */
   isPreview?: boolean;

@@ -2,7 +2,7 @@
   "name": "qmusic",
   "version": "1.0.0",
   "private": true,
-  "description": "QMusic — web nghe nhạc hiện đại sử dụng Audius, iTunes Việt Nam, Jamendo và LRCLIB",
+  "description": "QMusic — web nghe nhạc và xem video hiện đại sử dụng Audius, iTunes Việt Nam, YouTube, Jamendo và LRCLIB",
   "engines": {
     "node": ">=20.9.0"
   },

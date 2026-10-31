@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Play, X } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { Equalizer } from "@/components/music/track-card";
@@ -9,6 +10,7 @@ import { PreviewBadge } from "@/components/music/preview-badge";
 import { TrackActions } from "@/components/music/track-actions";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { isVideoTrack } from "@/lib/youtube";
 import { usePlayerStore } from "@/stores/player-store";
 import type { MusicTrack } from "@/types/music";
 
@@ -37,11 +39,20 @@ export function TrackRow({
   onMoveUp,
   onMoveDown,
 }: TrackRowProps) {
+  const router = useRouter();
   const playTrack = usePlayerStore((state) => state.playTrack);
   const currentId = usePlayerStore((state) => state.queue[state.currentIndex]?.id);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const isCurrent = currentId === track.id;
-  const clickAction = () => playTrack(track, queue);
+  const video = isVideoTrack(track);
+  const isCurrent = !video && currentId === track.id;
+  const videoHref = `/track/youtube/${encodeURIComponent(track.videoId ?? track.remoteId)}`;
+  const clickAction = () => {
+    if (video) {
+      router.push(videoHref);
+      return;
+    }
+    playTrack(track, queue);
+  };
 
   return (
     <div
@@ -55,7 +66,13 @@ export function TrackRow({
         <button
           type="button"
           onClick={clickAction}
-          aria-label={isCurrent && isPlaying ? `Tạm dừng ${track.title}` : `Phát ${track.title}`}
+          aria-label={
+            video
+              ? `Mở video ${track.title}`
+              : isCurrent && isPlaying
+                ? `Tạm dừng ${track.title}`
+                : `Phát ${track.title}`
+          }
           className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-foreground"
         >
           {isCurrent ? (
@@ -89,12 +106,16 @@ export function TrackRow({
         >
           {track.title}
         </Link>
-        <Link
-          href={`/artist/${track.provider}/${encodeURIComponent(track.artist.remoteId)}`}
-          className="mt-0.5 block truncate text-xs text-muted transition-colors hover:text-foreground"
-        >
-          {track.artist.name}
-        </Link>
+        {video ? (
+          <span className="mt-0.5 block truncate text-xs text-muted">{track.artist.name}</span>
+        ) : (
+          <Link
+            href={`/artist/${track.provider}/${encodeURIComponent(track.artist.remoteId)}`}
+            className="mt-0.5 block truncate text-xs text-muted transition-colors hover:text-foreground"
+          >
+            {track.artist.name}
+          </Link>
+        )}
       </div>
 
       {track.isPreview && (
@@ -105,19 +126,25 @@ export function TrackRow({
       )}
 
       {showAlbum && (
-        <Link
-          href={
-            track.album
-              ? `/album/${track.album.provider}/${encodeURIComponent(track.album.remoteId)}`
-              : `/track/${track.provider}/${encodeURIComponent(track.remoteId)}`
-          }
-          className="hidden w-40 shrink-0 truncate text-xs text-muted transition-colors hover:text-foreground lg:block xl:w-56"
-        >
-          {track.album?.title ?? track.genre ?? "—"}
-        </Link>
+        video ? (
+          <span className="hidden w-40 shrink-0 truncate text-xs text-muted lg:block xl:w-56">
+            YouTube
+          </span>
+        ) : (
+          <Link
+            href={
+              track.album
+                ? `/album/${track.album.provider}/${encodeURIComponent(track.album.remoteId)}`
+                : `/track/${track.provider}/${encodeURIComponent(track.remoteId)}`
+            }
+            className="hidden w-40 shrink-0 truncate text-xs text-muted transition-colors hover:text-foreground lg:block xl:w-56"
+          >
+            {track.album?.title ?? track.genre ?? "—"}
+          </Link>
+        )
       )}
 
-      <FavoriteButton track={track} size="sm" className="hidden shrink-0 sm:inline-flex" />
+      {!video && <FavoriteButton track={track} size="sm" className="hidden shrink-0 sm:inline-flex" />}
 
       <span
         className="hidden w-10 shrink-0 text-right text-xs tabular-nums text-muted sm:block"

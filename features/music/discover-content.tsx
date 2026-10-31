@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Compass, Disc3, Loader2, Music2, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Disc3, Loader2, Music2, Sparkles, Video } from "lucide-react";
 import { CardGridSkeleton } from "@/components/music/track-list-skeleton";
 import { SectionHeader } from "@/components/music/section-header";
 import { GenreCard } from "@/components/music/genre-card";
@@ -50,26 +50,49 @@ export function DiscoverContent() {
         </p>
       </header>
 
-      <Link
-        href="/vietnamese"
-        className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
-            <Music2 className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold">Nhạc Việt — bảng xếp hạng iTunes</p>
-            <p className="mt-0.5 text-xs text-muted">
-              Top bài hát và album Việt Nam, kèm đoạn nghe thử 30 giây do iTunes cung cấp.
-            </p>
+      <div className="grid gap-3 md:grid-cols-2">
+        <Link
+          href="/vietnamese"
+          className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+              <Music2 className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Nhạc Việt — bảng xếp hạng iTunes</p>
+              <p className="mt-0.5 text-xs text-muted">
+                Top bài hát và album Việt Nam, kèm đoạn nghe thử 30 giây do iTunes cung cấp.
+              </p>
+            </div>
           </div>
-        </div>
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
-          Xem bảng xếp hạng
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-        </span>
-      </Link>
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
+            Xem bảng xếp hạng
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </Link>
+
+        <Link
+          href="/videos"
+          className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+              <Video className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Video âm nhạc — YouTube chính thức</p>
+              <p className="mt-0.5 text-xs text-muted">
+                MV đầy đủ trong khung hình, giữ nguyên quảng cáo và không tách âm thanh.
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
+            Xem video
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </Link>
+      </div>
 
       <section>
         <SectionHeader

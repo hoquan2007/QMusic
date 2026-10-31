@@ -38,6 +38,7 @@ Chỉ các biến sau là cần thiết khi muốn bật thêm tính năng. Tấ
 | `AUDIUS_APP_NAME` | Tất cả | Mặc định `QMusic`. |
 | `JAMENDO_CLIENT_ID` | Production / Preview | Chỉ thêm khi đã đăng ký Jamendo. Thêm biến này sẽ bật provider Jamendo. |
 | `ITUNES_VN_ENABLED` | Production / Preview | Bật mặc định (`true`). Đặt `false` để tắt iTunes Việt Nam và đoạn nghe thử 30 giây. |
+| `YOUTUBE_API_KEY` | Production / Preview | Khóa YouTube Data API v3, chỉ dùng phía server. Bật tìm kiếm và video thịnh hành; trang xem video trực tiếp vẫn chạy khi để trống. |
 | `LRCLIB_APP_ID` | Production / Preview | Tùy chọn, giúp tăng hạn mức LRCLIB. |
 
 Lưu ý:
@@ -53,10 +54,14 @@ Sau khi deploy, kiểm tra nhanh:
 ```text
 GET /                       → trang chủ tải dữ liệu Audius
 GET /vietnamese             → bảng xếp hạng nhạc Việt từ iTunes
+GET /videos                 → thư viện video; có ô dán liên kết YouTube
+GET /track/youtube/dQw4w9WgXcQ
+                            → iframe youtube.com/embed hiển thị đầy đủ
 GET /api/music/home         → JSON 200, có trending và vietnamese
 GET /api/music/vietnamese   → JSON 200, có tracks và albums
 GET /api/music/search?q=son%20tung
                             → JSON 200, có kết quả iTunes
+GET /api/music/videos       → chỉ 200 khi đã cấu hình YOUTUBE_API_KEY
 GET /api/lyrics?track=Blinding%20Lights&artist=The%20Weeknd&duration=202
                             → found=true, synced=true
 ```
@@ -66,10 +71,11 @@ Nếu Audius, iTunes hoặc LRCLIB tạm thời trả `429` / `503`, giao diện
 ## 5. Giới hạn cần biết trên Vercel
 
 - **Không có database**: thư viện cá nhân lưu trong `localStorage`; không đồng bộ giữa thiết bị.
-- **Không lưu tệp nhạc**: QMusic phát trực tiếp từ Audius/Jamendo, không proxy hoặc host lại audio. Với iTunes, ứng dụng chỉ phát đoạn nghe thử 30 giây do Apple cung cấp và không tải xuống, lưu trữ hay đồng bộ.
+- **Không lưu tệp nhạc**: QMusic phát trực tiếp từ Audius/Jamendo, không proxy hoặc host lại audio. Với iTunes, ứng dụng chỉ phát đoạn nghe thử 30 giây do Apple cung cấp và không tải xuống, lưu trữ hay đồng bộ. Video YouTube phát qua iframe chính thức, không tách âm thanh hoặc tải xuống.
+- **Quota YouTube**: `search.list` tốn 100 đơn vị/lần, `videos.list` tốn 1 đơn vị; quota mặc định khoảng 10.000 đơn vị/ngày. QMusic cache kết quả 5–15 phút. Nếu thiếu key, `/api/music/videos` trả `503` và `/videos` hiển thị hướng dẫn cấu hình; trang `/track/youtube/[id]` vẫn xem được qua oEmbed.
 - **Serverless timeout**: các route gọi API ngoài có timeout và retry giới hạn. Trên gói Hobby, thời gian chạy function ngắn hơn gói trả phí; nếu upstream chậm kéo dài, route có thể bị cắt.
 - **Rate limit**: QMusic không vượt giới hạn upstream. iTunes Search API giới hạn khoảng 20 request/phút cho mỗi IP; provider cache 60–300 giây. Nếu lượng truy cập tăng, nên thêm `AUDIUS_API_KEY`, `JAMENDO_CLIENT_ID` và `LRCLIB_APP_ID` để có hạn mức tốt hơn.
-- **CSP**: `next.config.ts` chỉ cho phép kết nối tới Audius, iTunes, Jamendo và LRCLIB. Nếu thêm provider mới, cập nhật `connect-src` và `media-src` tương ứng.
+- **CSP**: `next.config.ts` chỉ cho phép kết nối tới Audius, iTunes, Jamendo và LRCLIB; `frame-src` chỉ mở cho `www.youtube.com` và `www.youtube-nocookie.com`. Nếu thêm provider mới, cập nhật `connect-src`, `media-src` và `frame-src` tương ứng.
 
 ## 6. Custom domain
 

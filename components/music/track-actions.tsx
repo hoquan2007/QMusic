@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Heart, Info, ListEnd, ListPlus, MoreHorizontal, Play } from "lucide-react";
+import { Clapperboard, ExternalLink, Heart, Info, ListEnd, ListPlus, MoreHorizontal, Play } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import { isFavorite, useLibraryStore } from "@/stores/library-store";
 import { usePlayerStore } from "@/stores/player-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
+import { isVideoTrack } from "@/lib/youtube";
 import type { MusicTrack } from "@/types/music";
 
 export function TrackActions({
@@ -32,6 +33,43 @@ export function TrackActions({
   const openAddToPlaylist = useUiStore((state) => state.openAddToPlaylist);
   const favorite = useLibraryStore((state) => isFavorite(track, state.favorites));
   const toggleFavorite = useLibraryStore((state) => state.toggleFavorite);
+  const video = isVideoTrack(track);
+  const videoHref = `/track/youtube/${encodeURIComponent(track.videoId ?? track.remoteId)}`;
+
+  if (video) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label={`Tùy chọn cho ${track.title}`}
+            onClick={(event) => event.stopPropagation()}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-foreground focus-visible:outline-none",
+              className,
+            )}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align={align} onClick={(event) => event.stopPropagation()}>
+          <DropdownMenuLabel className="max-w-56 truncate">{track.title}</DropdownMenuLabel>
+          <DropdownMenuItem asChild>
+            <Link href={videoHref}>
+              <Clapperboard className="h-4 w-4" /> Xem video
+            </Link>
+          </DropdownMenuItem>
+          {track.sourceUrl && (
+            <DropdownMenuItem asChild>
+              <a href={track.sourceUrl} target="_blank" rel="noreferrer noopener">
+                <ExternalLink className="h-4 w-4" /> Mở trên YouTube
+              </a>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <DropdownMenu>

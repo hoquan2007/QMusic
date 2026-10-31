@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import { Artwork } from "@/components/music/artwork";
 import { PreviewBadge } from "@/components/music/preview-badge";
@@ -8,6 +9,7 @@ import { TrackActions } from "@/components/music/track-actions";
 import { FavoriteButton } from "@/components/music/favorite-button";
 import { usePlayerStore } from "@/stores/player-store";
 import { cn } from "@/lib/utils";
+import { isVideoTrack } from "@/lib/youtube";
 import type { MusicTrack } from "@/types/music";
 
 export function Equalizer({ className }: { className?: string }) {
@@ -29,10 +31,13 @@ export function TrackCard({
   queue?: MusicTrack[];
   className?: string;
 }) {
+  const router = useRouter();
   const playTrack = usePlayerStore((state) => state.playTrack);
   const currentId = usePlayerStore((state) => state.queue[state.currentIndex]?.id);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const isCurrent = currentId === track.id;
+  const video = isVideoTrack(track);
+  const isCurrent = !video && currentId === track.id;
+  const videoHref = `/track/youtube/${encodeURIComponent(track.videoId ?? track.remoteId)}`;
 
   return (
     <article
@@ -66,8 +71,20 @@ export function TrackCard({
         )}
         <button
           type="button"
-          onClick={() => playTrack(track, queue)}
-          aria-label={isCurrent && isPlaying ? `Tạm dừng ${track.title}` : `Phát ${track.title}`}
+          onClick={() => {
+            if (video) {
+              router.push(videoHref);
+              return;
+            }
+            playTrack(track, queue);
+          }}
+          aria-label={
+            video
+              ? `Mở video ${track.title}`
+              : isCurrent && isPlaying
+                ? `Tạm dừng ${track.title}`
+                : `Phát ${track.title}`
+          }
           className={cn(
             "absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-all duration-300 hover:scale-105 hover:bg-primary-hover focus-visible:outline-none",
             isCurrent
@@ -94,14 +111,18 @@ export function TrackCard({
           >
             {track.title}
           </Link>
-          <Link
-            href={`/artist/${track.provider}/${encodeURIComponent(track.artist.remoteId)}`}
-            className="mt-1 block truncate text-xs text-muted transition-colors hover:text-foreground"
-          >
-            {track.artist.name}
-          </Link>
+          {video ? (
+            <span className="mt-1 block truncate text-xs text-muted">{track.artist.name}</span>
+          ) : (
+            <Link
+              href={`/artist/${track.provider}/${encodeURIComponent(track.artist.remoteId)}`}
+              className="mt-1 block truncate text-xs text-muted transition-colors hover:text-foreground"
+            >
+              {track.artist.name}
+            </Link>
+          )}
         </div>
-        <FavoriteButton track={track} size="sm" className="-mr-1 shrink-0" />
+        {!video && <FavoriteButton track={track} size="sm" className="-mr-1 shrink-0" />}
       </div>
     </article>
   );

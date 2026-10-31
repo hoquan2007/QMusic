@@ -13,6 +13,7 @@ import {
   Plus,
   Search,
   Settings,
+  Video,
 } from "lucide-react";
 import { Wordmark } from "@/components/brand/logo";
 import { useLibraryStore } from "@/stores/library-store";
@@ -23,6 +24,7 @@ const primaryNav = [
   { href: "/", label: "Trang chủ", icon: Home },
   { href: "/discover", label: "Khám phá", icon: Compass },
   { href: "/vietnamese", label: "Nhạc Việt", icon: Music2 },
+  { href: "/videos", label: "Video", icon: Video },
   { href: "/search", label: "Tìm kiếm", icon: Search },
 ];
 
@@ -174,6 +176,17 @@ export function Sidebar() {
             className="font-semibold text-muted hover:text-foreground"
           >
             iTunes
+          </a>
+        </p>
+        <p>
+          Video:{" "}
+          <a
+            href="https://www.youtube.com"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-semibold text-muted hover:text-foreground"
+          >
+            YouTube
           </a>
         </p>
         <p>
